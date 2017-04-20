@@ -112,10 +112,10 @@
 	}
 
 	function buildMap(start, end, open) {
-		var range = "opened >= '" + start + "' AND opened <= '" + end + "'";
-		var params = {request_type: "Illegal Encampment", $where: range, $limit: 10000};
+		var range = "requested_datetime >= '" + start + "' AND requested_datetime <= '" + end + "'";
+		var params = {service_name: "Encampments", $where: range, $limit: 10000};
 		if (open) {
-			params["status"] = "Open"
+			params["status_description"] = "Open"
 		}
 
 		// Fetch Incident Data from 311
@@ -125,12 +125,12 @@
 	}
 	
 	function getInfoWindow(datum) {
-		var content = "<h3>" + datum.request_type + " <span class='badge'>" + datum.status + "</span></h3>" 
-		+ "<b>Type:</b> " + datum.request_details + "<br />" 
+		var content = "<h3>" + datum.service_subtype + " <span class='badge'>" + datum.status_description + "</span></h3>" 
+		+ "<b>Type:</b> " + datum.service_details + "<br />" 
 		+ "<b>Category:</b> " + datum.category + "<br />" 
 		+ "<b>Address:</b> " + datum.address + "<br />" 
-		+ "<b>Date Opened:</b> " + datum.opened.substr(0, 10);
-		if (datum.closed) content += "<br /><b>Date Closed:</b> " + datum.closed.substr(0, 10);
+		+ "<b>Date Opened:</b> " + datum.requested_datetime.substr(0, 10);
+		if (datum.status_description == "Closed") content += "<br /><b>Date Closed:</b> " + datum.closed_date.substr(0, 10);
 		if (datum.status_notes) content += "<br /><b>Status Notes:</b> " + datum.status_notes;
 		return new google.maps.InfoWindow({content: content});
 	}
@@ -144,11 +144,10 @@
 
 		var markers = data.map(function(datum, i) {
 			// Some API data is corrupt, skip those data points
-			if (typeof(datum) === "undefined" || typeof(datum.point) === "undefined") return;
-			if (datum.request_details != "Encampment Cleanup" && datum.request_details != "Carts" && datum.request_details != "Storage") alert(datum.request_details);
+			if (typeof(datum) === "undefined") return;
 			var marker = new google.maps.Marker({
-				position: {lat: datum.point.coordinates[1], lng: datum.point.coordinates[0]},
-				title: datum.request_details,
+				position: {lat: parseFloat(datum.lat), lng: parseFloat(datum.long)},
+				title: datum.service_details,
 			});
 			var infoWindow = getInfoWindow(datum);
 			marker.infoWindow = infoWindow;
