@@ -125,9 +125,7 @@
 	}
 	
 	function getInfoWindow(datum) {
-		var content = "<h3>" + datum.service_subtype + " <span class='badge'>" + datum.status_description + "</span></h3>" 
-		+ "<b>Type:</b> " + datum.service_details + "<br />" 
-		+ "<b>Category:</b> " + datum.category + "<br />" 
+		var content = "<h3>" + datum.service_details + " <span class='badge'>" + datum.status_description + "</span></h3>" 
 		+ "<b>Address:</b> " + datum.address + "<br />" 
 		+ "<b>Date Opened:</b> " + datum.requested_datetime.substr(0, 10);
 		if (datum.status_description == "Closed") content += "<br /><b>Date Closed:</b> " + datum.closed_date.substr(0, 10);
@@ -145,6 +143,7 @@
 		var markers = data.map(function(datum, i) {
 			// Some API data is corrupt, skip those data points
 			if (typeof(datum) === "undefined") return;
+			if (datum.service_subtype != "Encampment Reports") alert(datum.service_subtype);
 			var marker = new google.maps.Marker({
 				position: {lat: parseFloat(datum.lat), lng: parseFloat(datum.long)},
 				title: datum.service_details,
