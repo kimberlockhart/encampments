@@ -52,21 +52,38 @@
 							    <input id="end" type="text" class="input-sm form-control" name="end" />
 							</div>
 						</div>
-				  	</div>
-					<label>Criteria</label>
-					<div class="checkbox">
-			    		<label>
-			      			<input id="open" type="checkbox"> Open Cases
-			    		</label>
-			  		</div>
+						<label>Incident Status</label>
+					<div class="form-group">	
+						<label class="radio-inline">
+					  		<input type="radio" name="status" id="open"> Open Cases
+						</label>
+						<label class="radio-inline">
+					  		<input type="radio" name="status" id="all" checked="checked"> All Cases
+						</label>
+					</div>
+					<label>Incident Type</label>
+					<div class="form-group">
+						<div class="checkbox">
+						  <label>
+						    <input type="checkbox" name="details" value="Encampment Cleanup" checked="checked"> Encampment Cleanup
+						  </label>
+						</div>
+						<div class="checkbox">
+						  <label>
+						    <input type="checkbox" name="details" value="Cart Pickup" checked="checked"> Cart Pickup
+						  </label>
+						</div>
+						<div class="checkbox">
+						  <label>
+						    <input type="checkbox" name="details" value="Storage" checked="checked"> Storage
+						  </label>
+						</div>
+					</div>
 				</form>
 			</div>
 		</div>
 	</div>
 	<script>
-	
-	//@TODO: Adjust info displayed on click on marker per Amy's preferences
-	//@TODO: Add a different type of marker for known encampments
 
 	function init() {
 		var today = new Date();
@@ -105,18 +122,36 @@
 	}
 	
 	function controlsChanged() {
+
 		var open = $('#open').is(":checked");
 		var start = new Date($('#start').val());
 		var end = new Date ($('#end').val());
-		buildMap(toApiString(start), toApiString(end), open);
+		var details = [];
+		$('input[name="details"]:checked').each(function() {
+		   details.push(this.value);
+		});
+		
+		buildMap(toApiString(start), toApiString(end), {open: open, details: details});
 	}
 
-	function buildMap(start, end, open) {
-		var range = "requested_datetime >= '" + start + "' AND requested_datetime <= '" + end + "'";
-		var params = {service_name: "Encampments", $where: range, $limit: 10000};
-		if (open) {
-			params["status_description"] = "Open"
+	function buildMap(start, end, options) {
+
+		var rangeQuery = "requested_datetime >= '" + start + "' AND requested_datetime <= '" + end + "'";
+		var detailQuery = "";
+		if (options.details) {
+			var partialDetailQueries = [];
+			$.each(options.details, function() {
+				partialDetailQueries.push("service_details = '" + this + "'");
+			});
+			// iterate thorugh the incdent types, add text to an array, then join with OR
+			detailQuery = " AND (" + partialDetailQueries.join(" OR ") + ")";
 		}
+		
+		var params = {service_name: "Encampments", $where: rangeQuery + detailQuery, $limit: 10000};
+		
+		if (options && options.open) {
+			params["status_description"] = "Open"
+		}	
 
 		// Fetch Incident Data from 311
 		$.get("https://data.sfgov.org/resource/ktji-gk7t.json?" + $.param(params), function(data) {
@@ -143,7 +178,7 @@
 		var markers = data.map(function(datum, i) {
 			// Some API data is corrupt, skip those data points
 			if (typeof(datum) === "undefined") return;
-			if (datum.service_subtype != "Encampment Reports") alert(datum.service_subtype);
+
 			var marker = new google.maps.Marker({
 				position: {lat: parseFloat(datum.lat), lng: parseFloat(datum.long)},
 				title: datum.service_details,
