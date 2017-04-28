@@ -28,6 +28,10 @@
 	.input-daterange {
 		padding: 0 15px;
 	}
+
+	.italic {
+		font-style: italic;
+	}
 	</style>
 	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css">
@@ -80,6 +84,7 @@
 						</div>
 					</div>
 				</form>
+				<div id="totals" class="italic"></div>
 			</div>
 		</div>
 	</div>
@@ -156,6 +161,7 @@
 		// Fetch Incident Data from 311
 		$.get("https://data.sfgov.org/resource/ktji-gk7t.json?" + $.param(params), function(data) {
 			drawMap(data);	
+			updateTotal(data);
 		});
 	}
 	
@@ -166,6 +172,10 @@
 		if (datum.status_description == "Closed") content += "<br /><b>Date Closed:</b> " + datum.closed_date.substr(0, 10);
 		if (datum.status_notes) content += "<br /><b>Status Notes:</b> " + datum.status_notes;
 		return new google.maps.InfoWindow({content: content});
+	}
+
+	function updateTotal(data) {
+		$('#totals').html("Total Cases: " + data.length);
 	}
 
 	function drawMap(data) {
