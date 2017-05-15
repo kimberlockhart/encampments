@@ -15,6 +15,26 @@
 		background-color: #FFF;
 		height: 100%;
 	}
+	#spinny {
+		position: absolute;
+		z-index: 1;
+		font-size: 75px;
+		height: 100%;
+		text-align: center;
+		top: 40%;
+		display: none;
+	}
+
+	#spinny div {
+		background-color: #333;
+		border-radius: 20px;
+		opacity: .5;
+	}
+
+	#spinny div img {
+		margin: 20px 0;
+	}
+
 	html, body {
 		height: 100%;
 		margin: 0;
@@ -42,6 +62,7 @@
 <body>
 	<div class="container">
 		<div class="row">
+			<div id="spinny" class="col-md-9"><div class="col-md-offset-4 col-md-4"><img src="default.svg"></div></div>
 			<div id="map" class="col-md-9" role="main"></div>
 			<div id="sidebar" class="col-md-3" role="complementary">
 				<h2>Encampment Map</h2>
@@ -59,10 +80,10 @@
 						<label>Incident Status</label>
 					<div class="form-group">	
 						<label class="radio-inline">
-					  		<input type="radio" name="status" id="open"> Open Cases
+					  		<input type="radio" name="status" id="open" checked="checked"> Open Cases
 						</label>
 						<label class="radio-inline">
-					  		<input type="radio" name="status" id="all" checked="checked"> All Cases
+					  		<input type="radio" name="status" id="all"> All Cases
 						</label>
 					</div>
 					<label>Incident Type</label>
@@ -108,7 +129,7 @@
 		});
 		
 		$("#controls").change(controlsChanged);		
-		buildMap(toApiString(defaultStartDate), toApiString(defaultEndDate), false);
+		buildMap(toApiString(defaultStartDate), toApiString(defaultEndDate), {open: true});
 	}
 	
 	// Returns MM/DD/YYYY
@@ -125,6 +146,14 @@
 		if (number > 9) return number;
 		return "0" + number;
 	}
+
+	function addSpinny() {
+		$("#spinny").show();
+	}
+
+	function removeSpinny() {
+		$("#spinny").fadeOut();
+	}
 	
 	function controlsChanged() {
 
@@ -140,19 +169,23 @@
 	}
 
 	function buildMap(start, end, options) {
-
+		addSpinny();
 		var rangeQuery = "requested_datetime >= '" + start + "' AND requested_datetime <= '" + end + "'";
 		var detailQuery = "";
 		if (options.details) {
-			var partialDetailQueries = [];
-			$.each(options.details, function() {
-				partialDetailQueries.push("service_details = '" + this + "'");
-			});
-			// iterate thorugh the incdent types, add text to an array, then join with OR
-			detailQuery = " AND (" + partialDetailQueries.join(" OR ") + ")";
+			if (options.details.length == 0) {
+				detailQuery = "AND service_details != 'Encampment Cleanup' AND service_details != 'Cart Pickup' AND service_details != 'Storage'";
+			} else {
+				var partialDetailQueries = [];
+				$.each(options.details, function() {
+					partialDetailQueries.push("service_details = '" + this + "'");
+				});
+				// iterate thorugh the incdent types, add text to an array, then join with OR
+				detailQuery = " AND (" + partialDetailQueries.join(" OR ") + ")";
+			}
 		}
 		
-		var params = {service_name: "Encampments", $where: rangeQuery + detailQuery, $limit: 10000};
+		var params = {service_name: "Encampments", $where: rangeQuery + detailQuery, $limit: 50000};
 		
 		if (options && options.open) {
 			params["status_description"] = "Open"
@@ -161,6 +194,7 @@
 		// Fetch Incident Data from 311
 		$.get("https://data.sfgov.org/resource/ktji-gk7t.json?" + $.param(params), function(data) {
 			drawMap(data);	
+			removeSpinny();
 			updateTotal(data);
 		});
 	}
