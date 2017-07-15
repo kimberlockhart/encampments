@@ -15,11 +15,11 @@ function init() {
 		startDate: Dates.toHumanString(beginningOfTime)
 	});
 	
-	$("#controls").change(controlsChanged);		
-	buildMap(Dates.toApiString(defaultStartDate), Dates.toApiString(defaultEndDate), {open: true});
+	$("#controls").change(buildMapFromForm);	
+	buildMapFromForm();
 }
 
-function controlsChanged() {
+function buildMapFromForm() {
 
 	var open = $('#open').is(":checked");
 	var start = new Date($('#start').val());
@@ -27,8 +27,7 @@ function controlsChanged() {
 	var details = [];
 	$('input[name="details"]:checked').each(function() {
 	   details.push(this.value);
-	});
-	
+	});	
 	buildMap(Dates.toApiString(start), Dates.toApiString(end), {open: open, details: details});
 }
 
