@@ -1,0 +1,47 @@
+body {
+	background-color: #EEE !important;
+}
+#map {
+	height: 100%;
+}
+#sidebar {
+	background-color: #FFF;
+	height: 100%;
+}
+#spinny {
+	position: absolute;
+	z-index: 1;
+	font-size: 75px;
+	height: 100%;
+	text-align: center;
+	top: 40%;
+	display: none;
+}
+
+#spinny div {
+	background-color: #333;
+	border-radius: 20px;
+	opacity: .5;
+}
+
+#spinny div img {
+	margin: 20px 0;
+}
+
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.row, .container{
+	height: 100%;
+}
+
+.input-daterange {
+	padding: 0 15px;
+}
+
+.italic {
+	font-style: italic;
+}
