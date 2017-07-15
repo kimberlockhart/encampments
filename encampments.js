@@ -1,3 +1,6 @@
+var THREE_ONE_ONE_API_URL_BASE = "https://data.sfgov.org/resource/ktji-gk7t.json?";
+var DEFAULT_MARKER_IMG = "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m";
+
 function init() {
 	var today = new Date();
 	var beginningOfTime = new Date(today.getFullYear() - 1, 1, 1, 0, 0, 0, 0);
@@ -56,7 +59,7 @@ function buildMap(start, end, options) {
 	}	
 
 	// Fetch Incident Data from 311
-	$.get("https://data.sfgov.org/resource/ktji-gk7t.json?" + $.param(params), function(data) {
+	$.get(THREE_ONE_ONE_API_URL_BASE + $.param(params), function(data) {
 		drawMap(data, options.clusters);	
 		Spinny.remove();
 		updateTotal(data);
@@ -100,7 +103,7 @@ function drawMap(data, clusters) {
 	
 	if (clusters) {
 		markerCluster = new MarkerClusterer(map, markers,
-			{zoomOnClick: false, imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+			{zoomOnClick: false, imagePath: DEFAULT_MARKER_IMG});
 		// On click, show each infoWindow in sequence
 		google.maps.event.addListener(markerCluster, "clusterclick", function(cluster) {clusterClick(cluster, map)});	
 	} else {
