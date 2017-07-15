@@ -15,7 +15,7 @@ function init() {
 		startDate: Dates.toHumanString(beginningOfTime)
 	});
 	
-	$("#controls").change(buildMapFromForm);	
+	$("#controls").change(buildMapFromForm);		
 	buildMapFromForm();
 }
 
@@ -27,8 +27,9 @@ function buildMapFromForm() {
 	var details = [];
 	$('input[name="details"]:checked').each(function() {
 	   details.push(this.value);
-	});	
-	buildMap(Dates.toApiString(start), Dates.toApiString(end), {open: open, details: details});
+	});
+	var clusters = $('#clusters').is(":checked");
+	buildMap(Dates.toApiString(start), Dates.toApiString(end), {open: open, details: details, clusters: clusters});
 }
 
 function buildMap(start, end, options) {
@@ -50,13 +51,13 @@ function buildMap(start, end, options) {
 	
 	var params = {service_name: "Encampments", $where: rangeQuery + detailQuery, $limit: 50000};
 	
-	if (options && options.open) {
+	if (options.open) {
 		params["status_description"] = "Open"
 	}	
 
 	// Fetch Incident Data from 311
 	$.get("https://data.sfgov.org/resource/ktji-gk7t.json?" + $.param(params), function(data) {
-		drawMap(data);	
+		drawMap(data, options.clusters);	
 		Spinny.remove();
 		updateTotal(data);
 	});
@@ -75,7 +76,7 @@ function updateTotal(data) {
 	$('#totals').html("Total Cases: " + data.length);
 }
 
-function drawMap(data) {
+function drawMap(data, clusters) {
 	// Center on San Francisco
 	var map = new google.maps.Map(document.getElementById('map'), {
 		zoom: 13,
@@ -93,24 +94,36 @@ function drawMap(data) {
 		var infoWindow = getInfoWindow(datum);
 		marker.infoWindow = infoWindow;
 		// Add infoWindow handler to each marker so it operates when it's no longer part of a cluster
-		marker.addListener("click", function() {infoWindow.open(map, marker);});
+		marker.addListener("click", function() {markerClick(marker, map)});
 		return marker;
 	});
+	
+	if (clusters) {
+		markerCluster = new MarkerClusterer(map, markers,
+			{zoomOnClick: false, imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+		// On click, show each infoWindow in sequence
+		google.maps.event.addListener(markerCluster, "clusterclick", function(cluster) {clusterClick(cluster, map)});	
+	} else {
+		// Add markers directly to map
+		markers.forEach(function(marker) {
+			marker.setMap(map);
+		});
+	}
+}
 
-	markerCluster = new MarkerClusterer(map, markers,
-		{zoomOnClick: false, imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
-	// On click, show each infoWindow in sequence
-	google.maps.event.addListener(markerCluster, "clusterclick", function(cluster) {
-		if (typeof(cluster.counter) == 'undefined') cluster.counter = 0;
-		if (cluster.infoWindow) cluster.infoWindow.close();
-		var size = cluster.getSize();
-		var markerIndex = cluster.counter % size;
-		var markers = cluster.getMarkers();
-		var infoWindow = markers[markerIndex].infoWindow;
-		infoWindow.setPosition(cluster.getCenter());
-		infoWindow.open(map);
-		cluster.infoWindow = infoWindow;
-		cluster.counter++;
-	});	
+function markerClick(marker, map) {
+	marker.infoWindow.open(map, markers);	
+}
 
+function clusterClick(cluster, map) {
+	if (typeof(cluster.counter) == 'undefined') cluster.counter = 0;
+	if (cluster.infoWindow) cluster.infoWindow.close();
+	var size = cluster.getSize();
+	var markerIndex = cluster.counter % size;
+	var markers = cluster.getMarkers();
+	var infoWindow = markers[markerIndex].infoWindow;
+	infoWindow.setPosition(cluster.getCenter());
+	infoWindow.open(map);
+	cluster.infoWindow = infoWindow;
+	cluster.counter++;
 }
