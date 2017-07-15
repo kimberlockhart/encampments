@@ -5,41 +5,18 @@ function init() {
 	var defaultStartDate = new Date(2017, 0, 1, 0, 0, 0, 0);
 	var defaultEndDate = today;
 	
-	$('#start').val(toHumanString(defaultStartDate));
-	$('#end').val(toHumanString(defaultEndDate));
+	$('#start').val(Dates.toHumanString(defaultStartDate));
+	$('#end').val(Dates.toHumanString(defaultEndDate));
 	
 	// Date Picker init must occur after default dates are set
 	$(".input-daterange").datepicker({
 		autoclose: true,
 		assumeNearbyYear: true,
-		startDate: toHumanString(beginningOfTime)
+		startDate: Dates.toHumanString(beginningOfTime)
 	});
 	
 	$("#controls").change(controlsChanged);		
-	buildMap(toApiString(defaultStartDate), toApiString(defaultEndDate), {open: true});
-}
-
-// Returns MM/DD/YYYY
-function toHumanString(date) {
-	return doubleDigit(date.getMonth() + 1) + "/" + doubleDigit(date.getDate()) + "/" + date.getFullYear();
-}
-
-// Returns YYYY-MM-DDT00:00:00
-function toApiString(date) {
-	return date.getFullYear() + "-" + doubleDigit(date.getMonth() + 1) + "-" + doubleDigit(date.getDate()) + "T00:00:00";
-}
-
-function doubleDigit(number) {
-	if (number > 9) return number;
-	return "0" + number;
-}
-
-function addSpinny() {
-	$("#spinny").show();
-}
-
-function removeSpinny() {
-	$("#spinny").fadeOut();
+	buildMap(Dates.toApiString(defaultStartDate), Dates.toApiString(defaultEndDate), {open: true});
 }
 
 function controlsChanged() {
@@ -52,11 +29,11 @@ function controlsChanged() {
 	   details.push(this.value);
 	});
 	
-	buildMap(toApiString(start), toApiString(end), {open: open, details: details});
+	buildMap(Dates.toApiString(start), Dates.toApiString(end), {open: open, details: details});
 }
 
 function buildMap(start, end, options) {
-	addSpinny();
+	Spinny.add();
 	var rangeQuery = "requested_datetime >= '" + start + "' AND requested_datetime <= '" + end + "'";
 	var detailQuery = "";
 	if (options.details) {
@@ -81,7 +58,7 @@ function buildMap(start, end, options) {
 	// Fetch Incident Data from 311
 	$.get("https://data.sfgov.org/resource/ktji-gk7t.json?" + $.param(params), function(data) {
 		drawMap(data);	
-		removeSpinny();
+		Spinny.remove();
 		updateTotal(data);
 	});
 }
