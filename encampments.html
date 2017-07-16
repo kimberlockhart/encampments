@@ -7,9 +7,10 @@
 	<link rel="stylesheet" type="text/css" href="encampments.css">
 	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
-		
+
 </head>
 <body>
 	<div class="container">
@@ -20,50 +21,51 @@
 				<h2>Encampment Map</h2>
 				<form id="controls">
 					<div class="form-group">
-				    	<label>Date Range</label>
+						<label>Date Range</label>
 						<div class="input-group row">
 							<div class="input-daterange input-group pas" id="datepicker">
-							    <input id="start" type="text" class="input-sm form-control" name="start" />
-							    <span class="input-group-addon">to</span>
-							    <input id="end" type="text" class="input-sm form-control" name="end" />
+								<input id="start" type="text" class="input-sm form-control" name="start" />
+								<span class="input-group-addon">to</span>
+								<input id="end" type="text" class="input-sm form-control" name="end" />
 							</div>
 						</div>
-						<label>Incident Status</label>
+					</div>
+					<label>Incident Status <i title="All Cases: Cases opened during the date range.  Open Cases: Cases opened during the date range, excluding those closed by the end of the date range." class="fa fa-info-circle"></i></label>
 					<div class="form-group">	
 						<label class="radio-inline">
-					  		<input type="radio" name="status" id="open" checked="checked"> Open Cases
+							<input type="radio" name="status" id="open" checked="checked"> Open Cases
 						</label>
 						<label class="radio-inline">
-					  		<input type="radio" name="status" id="all"> All Cases
+							<input type="radio" name="status" id="all"> All Cases
 						</label>
 					</div>
 					<label>Incident Type</label>
 					<div class="form-group">
 						<div class="checkbox">
-						  <label>
-						    <input type="checkbox" name="details" value="Encampment Cleanup" checked="checked"> Encampment Cleanup
-						  </label>
+							<label>
+								<input type="checkbox" name="details" value="Encampment Cleanup" checked="checked"> Encampment Cleanup
+							</label>
 						</div>
 						<div class="checkbox">
-						  <label>
-						    <input type="checkbox" name="details" value="Cart Pickup" checked="checked"> Cart Pickup
-						  </label>
+							<label>
+								<input type="checkbox" name="details" value="Cart Pickup" checked="checked"> Cart Pickup
+							</label>
 						</div>
 						<div class="checkbox">
-						  <label>
-						    <input type="checkbox" name="details" value="Storage" checked="checked"> Storage
-						  </label>
+							<label>
+								<input type="checkbox" name="details" value="Storage" checked="checked"> Storage
+							</label>
 						</div>
 					</div>
 					<label>View Options</label>
-				<div class="form-group">	
-					<label class="radio-inline">
-				  		<input type="radio" name="view" id="clusters" checked="checked"> Clusters
-					</label>
-					<label class="radio-inline">
-				  		<input type="radio" name="view" id="individual"> Individual Cases
-					</label>
-				</div>
+					<div class="form-group">	
+						<label class="radio-inline">
+							<input type="radio" name="view" id="clusters" checked="checked"> Clusters
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="view" id="individual"> Individual Cases
+						</label>
+					</div>
 				</form>
 				<div id="totals" class="italic"></div>
 			</div>

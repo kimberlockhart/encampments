@@ -39,6 +39,7 @@ function buildMap(start, end, options) {
 	Spinny.add();
 	var rangeQuery = "requested_datetime >= '" + start + "' AND requested_datetime <= '" + end + "'";
 	var detailQuery = "";
+	var openQuery = "";
 	if (options.details) {
 		if (options.details.length == 0) {
 			detailQuery = "AND service_details != 'Encampment Cleanup' AND service_details != 'Cart Pickup' AND service_details != 'Storage'";
@@ -51,12 +52,11 @@ function buildMap(start, end, options) {
 			detailQuery = " AND (" + partialDetailQueries.join(" OR ") + ")";
 		}
 	}
-	
-	var params = {service_name: "Encampments", $where: rangeQuery + detailQuery, $limit: 50000};
-	
 	if (options.open) {
-		params["status_description"] = "Open"
-	}	
+		openQuery = " AND (status_description = 'Open' OR (status_description = 'Closed' AND closed_date >= '" + end + "'))";
+	}
+	
+	var params = {service_name: "Encampments", $where: rangeQuery + detailQuery + openQuery, $limit: 50000};
 
 	// Fetch Incident Data from 311
 	$.get(THREE_ONE_ONE_API_URL_BASE + $.param(params), function(data) {
@@ -96,7 +96,7 @@ function drawMap(data, clusters) {
 		});
 		var infoWindow = getInfoWindow(datum);
 		marker.infoWindow = infoWindow;
-		// Add infoWindow handler to each marker so it operates when it's no longer part of a cluster
+		// Add infoWindow handler to each marker (even for cluster mode) so it operates when it's demoted from a cluster
 		marker.addListener("click", function() {markerClick(marker, map)});
 		return marker;
 	});
@@ -104,7 +104,6 @@ function drawMap(data, clusters) {
 	if (clusters) {
 		markerCluster = new MarkerClusterer(map, markers,
 			{zoomOnClick: false, imagePath: DEFAULT_MARKER_IMG});
-		// On click, show each infoWindow in sequence
 		google.maps.event.addListener(markerCluster, "clusterclick", function(cluster) {clusterClick(cluster, map)});	
 	} else {
 		// Add markers directly to map
@@ -118,6 +117,7 @@ function markerClick(marker, map) {
 	marker.infoWindow.open(map, markers);	
 }
 
+// Show each infoWindow in sequence
 function clusterClick(cluster, map) {
 	if (typeof(cluster.counter) == 'undefined') cluster.counter = 0;
 	if (cluster.infoWindow) cluster.infoWindow.close();
