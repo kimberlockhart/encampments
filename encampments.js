@@ -18,6 +18,8 @@ function init() {
 		startDate: Dates.toHumanString(beginningOfTime)
 	});
 	
+	$('[data-toggle="tooltip"]').tooltip(); 
+	
 	$("#controls").change(buildMapFromForm);		
 	buildMapFromForm();
 }
