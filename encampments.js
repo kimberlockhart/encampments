@@ -82,7 +82,7 @@ function buildMap(start, end, options) {
 		$.get(THREE_ONE_ONE_API_URL_BASE + $.param(params), function(data) {
 			addCaseMarkers(data, options.clusters, map);	
 			Spinny.remove();
-			updateTotal(data);
+			updateCaseTotal(data);
 		});
 	}
 	
@@ -91,20 +91,23 @@ function buildMap(start, end, options) {
 		var month = $('select[name="month"]').val();
 		var data = encampments[month];
 		addEncampmentMarkers(data, map);
+		updateEncampmentTotal(data);
 	}
 }
+function updateEncampmentTotal(data) {
+	$('#encampmentTotals').text("Total Encampments: " + data.length);
+}
 
-function updateTotal(data) {
-	$('#totals').text("Total Cases: " + data.length);
+function updateCaseTotal(data) {
+	$('#caseTotals').text("Total Cases: " + data.length);
 }
 
 function addEncampmentMarkers(data, map) {
 	var encampmentMarkers = data.map(function(datum, i) {
-		if (datum.ActiveText != "Active") return;
 		var marker = new google.maps.Marker( {
 			position: {lat: datum.Lat, lng: datum.Lon},
-			title: "Encampment #" + datum.EncampmentID,
-			icon: "https://s3-us-west-1.amazonaws.com/sfhc/tent_icon.png",
+			title: "Encampment " + datum.EncampmentID,
+			icon: "https://s3-us-west-1.amazonaws.com/sfhc/tent.png",
 			map: map
 		});
 		var infoWindow = getEncampmentInfoWindow(datum);
@@ -144,16 +147,65 @@ function addCaseMarkers(data, clusters, map) {
 }
 
 function getCaseInfoWindow(datum) {
-	var content = "<h3>" + datum.service_details + " <span class='badge'>" + datum.status_description + "</span></h3>" 
-	+ "<b>Address:</b> " + datum.address + "<br />" 
-	+ "<b>Date Opened:</b> " + datum.requested_datetime.substr(0, 10);
-	if (datum.status_description == "Closed") content += "<br /><b>Date Closed:</b> " + datum.closed_date.substr(0, 10);
-	if (datum.status_notes) content += "<br /><b>Status Notes:</b> " + datum.status_notes;
+	var values = {
+		"service_details": datum.service_details,
+		"service_description": datum.status_description,
+		"address": datum.address,
+		"date_opened": datum.requested_datetime.substr(0, 10),
+		"status_notes": datum.status_notes
+	}
+	if (datum.status_description == "Closed") {
+		values["closed"] = true;
+		values["date_closed"] = datum.closed_date.substr(0, 10);
+	}
+	
+	var template = $('#caseInfoWindow').html();
+	var content = Mustache.render(template, values);
 	return new google.maps.InfoWindow({content: content});
 }
 
 function getEncampmentInfoWindow(datum) {
-	var content = JSON.stringify(datum) + "";
+	var levelValue = parseInt(datum.Safety.substr(0, 1));
+	switch(levelValue) {
+		case 5:
+			level="danger";
+			level_text="Dangerous or Violent";
+	    case 4:
+	        level="not_safe";
+			level_text = "Not Safe";
+	        break;
+	    case 3:
+	        level="neutral";
+			level_text = "Neutral";
+	        break;
+	    case 2:
+	        level="somewhat";
+			level_text = "Somewhat Safe";
+	        break;
+		case 1:
+			level="safe";
+			level_text = "Safe";
+        	break;
+		default:
+			level="unknown";
+			level_text="No Safety Info";
+			break;
+	}
+	
+	
+	var values = {
+		"encampment_id": datum.EncampmentID,
+		"status": datum.ActiveText || "Inactive",
+		"last_assessment": datum.Last_Assessment_dt,
+		"location_type": datum.LocType || "Unknown",
+		"people": datum.People || "Unknown",
+		"tents": datum.Tents || "Unknown",
+		"level": level,
+		"level_text": level_text
+	};
+	
+	var template = $('#encampmentInfoWindow').html();
+	var content = Mustache.render(template, values);
 	return new google.maps.InfoWindow({content: content});
 }
 
@@ -167,7 +219,7 @@ function drawMap(data, clusters) {
 }
 
 function markerClick(marker, map) {
-	marker.infoWindow.open(map, markers);	
+	marker.infoWindow.open(map, marker);	
 }
 
 // Show each infoWindow in sequence

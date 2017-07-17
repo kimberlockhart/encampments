@@ -12,6 +12,7 @@
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
 	<script type="text/javascript" src="encampments.json"></script>
 	
 
@@ -80,25 +81,49 @@
 							<input type="radio" name="view" id="individual"> Individual Cases
 						</label>
 					</div>
-					<div id="totals" class="italic">Total Cases: 0</div>
+					<div id="caseTotals" class="italic">Total Cases: 0</div>
 				</div>
 				<div class="row">
 					<div class="col-md-8"><h4>DPW Encampments</h4></div>
 					<div class="col-md-4">
-						<label class="switch">
-				  			<input type="checkbox" name="encampments">
+						<label class="switch" data-element="dpw">
+				  			<input type="checkbox" name="encampments" checked="checked">
 				  			<span class="slider round"></span>
 						</label>
 					</div>
 				</div>
-				<label>Month</label>
-				<select name="month" class="form-control">
-				  <option value="march">March</option>
-				</select>
-				</form>
+				<div id="dpw">
+					<label>Month</label>
+					<div class="form-group">	
+						<select name="month" class="form-control">
+				  			<option value="february-seventeen">February 2017</option>
+				  			<option value="november-sixteen">November 2016</option>
+				  			<option value="august-sixteen">August 2016</option>
+						</select>
+					</div>
+					<div id="encampmentTotals" class="italic">Total Encampments: 0</div>
+				</div>
+				</form>	
 			</div>
 		</div>
 	</div>
+	
+	<script id="caseInfoWindow" type="text/template">
+		<h3>{{service_details}} <span class='badge'>{{service_description}}</span></h3>
+		<b>Address:</b> {{address}} <br />
+		<b>Date Opened:</b> {{date_opened}}
+		{{#closed}}<br /><b>Date Closed:</b> {{date_closed}}{{/closed}}
+		{{#status_notes}}<br /><b>Status Notes:</b> {{status_notes}}{{/status_notes}}
+	</script>
+	<script id="encampmentInfoWindow" type="text/template">
+		<h3>Encampment {{encampment_id}} <span class='badge'>{{status}}</span></h3>
+		<b>Last Assessment:</b> {{last_assessment}}<br />
+		<b>Location Type:</b> {{location_type}}<br />
+		<b>People:</b> {{people}}<br />
+		<b>Tents:</b> {{tents}}<br />
+		<div class="label {{level}}">{{level_text}}</div>
+	</script>
+		
 	<script src="utils.js"></script>
 	<script src="encampments.js"></script>
 	<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">

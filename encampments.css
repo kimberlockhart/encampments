@@ -50,3 +50,37 @@ html, body {
 .italic {
 	font-style: italic;
 }
+
+.label {
+	display: block !important;
+	width: 120px;
+}
+
+.label.danger {
+	background-color: #981511;
+}
+
+.label.not_safe {
+	background-color: #d9534f;
+}
+
+.label.neutral {
+	background-color: #f0ad4e;
+}
+
+.label.somewhat {
+	background-color: #f0e44e;
+}
+
+.label.safe {
+	background-color: #5cb85c;
+}
+
+.label.unknown {
+	background-color: #888;
+}
+
+.gm-style-iw h3 {
+	margin-top: 5px;
+}
+
