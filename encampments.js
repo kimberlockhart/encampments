@@ -52,7 +52,9 @@ function buildMapFromForm() {
 }
 
 function buildMap(start, end, options) {
-	Spinny.add();
+	
+	var map = drawMap();
+	
 	var rangeQuery = "requested_datetime >= '" + start + "' AND requested_datetime <= '" + end + "'";
 	var detailQuery = "";
 	var openQuery = "";
@@ -73,35 +75,47 @@ function buildMap(start, end, options) {
 	}
 	
 	var params = {service_name: "Encampments", $where: rangeQuery + detailQuery + openQuery, $limit: 50000};
-
-	// Fetch Incident Data from 311
-	$.get(THREE_ONE_ONE_API_URL_BASE + $.param(params), function(data) {
-		drawMap(data, options.clusters);	
-		Spinny.remove();
-		updateTotal(data);
-	});
-}
-
-function getInfoWindow(datum) {
-	var content = "<h3>" + datum.service_details + " <span class='badge'>" + datum.status_description + "</span></h3>" 
-	+ "<b>Address:</b> " + datum.address + "<br />" 
-	+ "<b>Date Opened:</b> " + datum.requested_datetime.substr(0, 10);
-	if (datum.status_description == "Closed") content += "<br /><b>Date Closed:</b> " + datum.closed_date.substr(0, 10);
-	if (datum.status_notes) content += "<br /><b>Status Notes:</b> " + datum.status_notes;
-	return new google.maps.InfoWindow({content: content});
+	
+	// Fetch Case Data from 311
+	if ($('input[name="cases"]').is(":checked")) {
+		Spinny.add();
+		$.get(THREE_ONE_ONE_API_URL_BASE + $.param(params), function(data) {
+			addCaseMarkers(data, options.clusters, map);	
+			Spinny.remove();
+			updateTotal(data);
+		});
+	}
+	
+	// Fetch DPW Encampment Data
+	if ($('input[name="encampments"]').is(":checked")) {
+		var month = $('select[name="month"]').val();
+		var data = encampments[month];
+		addEncampmentMarkers(data, map);
+	}
 }
 
 function updateTotal(data) {
 	$('#totals').text("Total Cases: " + data.length);
 }
 
-function drawMap(data, clusters) {
-	// Center on San Francisco
-	var map = new google.maps.Map(document.getElementById('map'), {
-		zoom: 13,
-		center: {lat: 37.78, lng: -122.45}
+function addEncampmentMarkers(data, map) {
+	var encampmentMarkers = data.map(function(datum, i) {
+		if (datum.ActiveText != "Active") return;
+		var marker = new google.maps.Marker( {
+			position: {lat: datum.Lat, lng: datum.Lon},
+			title: "Encampment #" + datum.EncampmentID,
+			icon: "https://s3-us-west-1.amazonaws.com/sfhc/tent_icon.png",
+			map: map
+		});
+		var infoWindow = getEncampmentInfoWindow(datum);
+		marker.infoWindow = infoWindow;
+		// Add infoWindow handler to each marker so it operates when it's no longer part of a cluster
+		marker.addListener("click", function() {infoWindow.open(map, marker);});
+		return marker;
 	});
+}
 
+function addCaseMarkers(data, clusters, map) {
 	var markers = data.map(function(datum, i) {
 		// Some API data is corrupt, skip those data points
 		if (typeof(datum) === "undefined") return;
@@ -110,7 +124,7 @@ function drawMap(data, clusters) {
 			position: {lat: parseFloat(datum.lat), lng: parseFloat(datum.long)},
 			title: datum.service_details,
 		});
-		var infoWindow = getInfoWindow(datum);
+		var infoWindow = getCaseInfoWindow(datum);
 		marker.infoWindow = infoWindow;
 		// Add infoWindow handler to each marker (even for cluster mode) so it operates when it's demoted from a cluster
 		marker.addListener("click", function() {markerClick(marker, map)});
@@ -127,6 +141,29 @@ function drawMap(data, clusters) {
 			marker.setMap(map);
 		});
 	}
+}
+
+function getCaseInfoWindow(datum) {
+	var content = "<h3>" + datum.service_details + " <span class='badge'>" + datum.status_description + "</span></h3>" 
+	+ "<b>Address:</b> " + datum.address + "<br />" 
+	+ "<b>Date Opened:</b> " + datum.requested_datetime.substr(0, 10);
+	if (datum.status_description == "Closed") content += "<br /><b>Date Closed:</b> " + datum.closed_date.substr(0, 10);
+	if (datum.status_notes) content += "<br /><b>Status Notes:</b> " + datum.status_notes;
+	return new google.maps.InfoWindow({content: content});
+}
+
+function getEncampmentInfoWindow(datum) {
+	var content = JSON.stringify(datum) + "";
+	return new google.maps.InfoWindow({content: content});
+}
+
+function drawMap(data, clusters) {
+	// Center on San Francisco
+	var map = new google.maps.Map(document.getElementById('map'), {
+		zoom: 13,
+		center: {lat: 37.78, lng: -122.45}
+	});
+	return map;
 }
 
 function markerClick(marker, map) {
