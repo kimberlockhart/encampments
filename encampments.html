@@ -5,6 +5,7 @@
 	<meta charset="utf-8">
 	<title>Encampment Data</title>
 	<link rel="stylesheet" type="text/css" href="encampments.css">
+	<link rel="stylesheet" type="text/css" href="toggle.css">
 	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -15,13 +16,23 @@
 
 </head>
 <body>
-	<div class="container">
-		<div class="row">
+	<div class="container full-height">
+		<div class="row full-height">
 			<div id="spinny" class="col-md-9"><div class="col-md-offset-4 col-md-4"><img src="spinner.svg"></div></div>
 			<div id="map" class="col-md-9" role="main"></div>
 			<div id="sidebar" class="col-md-3" role="complementary">
 				<h2>Encampment Map</h2>
 				<form id="controls">
+				<div class="row">
+					<div class="col-md-8"><h4>311 Cases</h4></div>
+					<div class="col-md-4">
+						<label class="switch" data-element="three-one-one">
+				  			<input type="checkbox" checked="checked">
+				  			<span class="slider round"></span>
+						</label>
+					</div>
+				</div>
+				<div id="three-one-one" class="togglee">
 					<div class="form-group">
 						<label>Date Range</label>
 						<div class="input-group row">
@@ -68,8 +79,24 @@
 							<input type="radio" name="view" id="individual"> Individual Cases
 						</label>
 					</div>
+					<div id="totals" class="italic">Total Cases: 0</div>
+				</div>
+				<div class="row">
+					<div class="col-md-8"><h4>DPW Encampments</h4></div>
+					<div class="col-md-4">
+						<label class="switch">
+				  			<input type="checkbox" checked="checked">
+				  			<span class="slider round"></span>
+						</label>
+					</div>
+				</div>
+				<label>Month</label>
+				<select name="month" class="form-control">
+				  <option value="">January</option>
+				  <option value="">March</option>
+				  <option value="">October</option>
+				</select>
 				</form>
-				<div id="totals" class="italic"></div>
 			</div>
 		</div>
 	</div>

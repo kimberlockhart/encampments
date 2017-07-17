@@ -1,5 +1,6 @@
 body {
 	background-color: #EEE !important;
+	font-family: Roboto,sans-serif;
 }
 #map {
 	height: 100%;
@@ -34,8 +35,12 @@ html, body {
 	padding: 0;
 }
 
-.row, .container{
+.full-height {
 	height: 100%;
+}
+
+.switch {
+	margin-top: 10px;
 }
 
 .input-daterange {

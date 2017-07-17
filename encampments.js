@@ -24,17 +24,31 @@ function init() {
 	buildMapFromForm();
 }
 
-function buildMapFromForm() {
-
-	var open = $('#open').is(":checked");
-	var start = new Date($('#start').val());
-	var end = new Date ($('#end').val());
-	var details = [];
-	$('input[name="details"]:checked').each(function() {
-	   details.push(this.value);
+function switchToggles(callback) {
+	$(".switch").each(function() {
+		var $toggler = $(this);
+		var $togglee = $("#" + $toggler.data("element"));
+		if ($toggler.find("input").is(":checked")) {
+			$togglee.slideDown(callback);
+		} else {
+			$togglee.slideUp(callback);
+		}
 	});
-	var clusters = $('#clusters').is(":checked");
-	buildMap(Dates.toApiString(start), Dates.toApiString(end), {open: open, details: details, clusters: clusters});
+}
+
+function buildMapFromForm() {
+	var callback = function() {
+		var open = $('#open').is(":checked");
+		var start = new Date($('#start').val());
+		var end = new Date ($('#end').val());
+		var details = [];
+		$('input[name="details"]:checked').each(function() {
+		   details.push(this.value);
+		});
+		var clusters = $('#clusters').is(":checked");
+		buildMap(Dates.toApiString(start), Dates.toApiString(end), {open: open, details: details, clusters: clusters});
+	};
+	switchToggles(callback);
 }
 
 function buildMap(start, end, options) {
@@ -78,7 +92,7 @@ function getInfoWindow(datum) {
 }
 
 function updateTotal(data) {
-	$('#totals').html("Total Cases: " + data.length);
+	$('#totals').text("Total Cases: " + data.length);
 }
 
 function drawMap(data, clusters) {
