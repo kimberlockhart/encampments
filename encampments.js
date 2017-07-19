@@ -1,5 +1,6 @@
 var THREE_ONE_ONE_API_URL_BASE = "https://data.sfgov.org/resource/ktji-gk7t.json?";
 var DEFAULT_MARKER_IMG = "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m";
+var TENT_MARKER_IMG = "http://map.saintfrancischallenge.org/images/tent.png";
 
 function init() {
 	var today = new Date();
@@ -107,7 +108,7 @@ function addEncampmentMarkers(data, map) {
 		var marker = new google.maps.Marker( {
 			position: {lat: datum.Lat, lng: datum.Lon},
 			title: "Encampment " + datum.EncampmentID,
-			icon: "https://s3-us-west-1.amazonaws.com/sfhc/tent.png",
+			icon: TENT_MARKER_IMG,
 			map: map
 		});
 		var infoWindow = getEncampmentInfoWindow(datum);
