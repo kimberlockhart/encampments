@@ -196,9 +196,9 @@ function getEncampmentInfoWindow(datum) {
 	
 	var values = {
 		"encampment_id": datum.EncampmentID,
-		"status": datum.ActiveText || "Inactive",
-		"last_assessment": datum.Last_Assessment_dt,
-		"location_type": datum.LocType || "Unknown",
+		"status": datum.Status || "Unknown",
+		"last_assessment": datum.LastAssessment || "Unknown",
+		"location_type": datum.LocationType || "Unknown",
 		"people": datum.People || "Unknown",
 		"tents": datum.Tents || "Unknown",
 		"level": level,
