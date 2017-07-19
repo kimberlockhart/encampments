@@ -13,3 +13,6 @@ To add a new data file, manually edit the CSV to ensure naming and format consis
 
 ## ELI Data
 We hope to add ELI data (as it is collected) as a third data type on this map.  
+
+## Deploy
+For deploy creds, please contact SFHC.
